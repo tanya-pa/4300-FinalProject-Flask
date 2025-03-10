@@ -2,6 +2,8 @@ env/*
 .DS_Store
 Docker/__pycache__
 
+4300finalproj/
+
 venv/
 
 *.pyc
