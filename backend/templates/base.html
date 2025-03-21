@@ -3,15 +3,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <body>
     <div class="full-body-container"> 
-        <div class="top-text">
-            <div class="image-container">
-                <h1 class="page-title">Eau de You</h1>
-                <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
-            </div>
-            <div class="sub-title">
-                <h2>Your signature scent, discovered.</h2>
-            </div>
-           
+        <div class="title-box">
+            <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
                 <input class="scent-search" placeholder='Not sure where to start? Try: "Marc Jacobs floral perfume for women"...' id="filter-text-val" onkeyup="filterText()">
