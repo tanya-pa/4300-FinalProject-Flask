@@ -4,7 +4,9 @@
 <body>
     <div class="full-body-container"> 
         <div class="title-box">
-            <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
+            <div>
+                <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
+            </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
                 <input class="scent-search" placeholder='Not sure where to start? Try: "Marc Jacobs floral perfume for women"...' id="filter-text-val" onkeyup="filterText()">
