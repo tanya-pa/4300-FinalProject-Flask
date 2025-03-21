@@ -4,17 +4,20 @@
 <body>
     <div class="full-body-container"> 
         <div class="top-text">
-            <div class="page-title">
-                <h1>Eau de You</h1>
+            <div class="image-container">
+                <h1 class="page-title">Eau de You</h1>
+                <img src="{{ url_for('static', filename='images/HeroImage.png') }}" />
             </div>
+            <div class="sub-title">
+                <h2>Your signature scent, discovered.</h2>
+            </div>
+           
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Search for a yummy smelling perfume!" id="filter-text-val" onkeyup="filterText()">
+                <input class="scent-search" placeholder='Not sure where to start? Try: "Marc Jacobs floral perfume for women"...' id="filter-text-val" onkeyup="filterText()">
             </div>
         </div>
-        <div id="answer-box">
-
-        </div>
+        <div id="answer-box"></div>
     </div>
 
     <script>
