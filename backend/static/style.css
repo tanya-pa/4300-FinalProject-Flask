@@ -20,7 +20,7 @@
     justify-content: center; /* Centers everything vertically */
     align-items: center;
     flex-direction: column;
-    padding-bottom: 150px; /* Adds space at the bottom */
+    padding-bottom: 300px; /* Adds space at the bottom */
 }
 
 .title-box{
