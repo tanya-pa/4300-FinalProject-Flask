@@ -5,7 +5,6 @@ from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.spatial.distance import cosine
-from rapidfuzz.distance import Levenshtein
 from collections import Counter
 import numpy as np
 
