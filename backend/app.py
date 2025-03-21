@@ -14,12 +14,12 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 LOCAL_MYSQL_USER = "root"
 LOCAL_MYSQL_USER_PASSWORD = "eaudeyou4300"
 LOCAL_MYSQL_PORT = 3306
-LOCAL_MYSQL_DATABASE = "frag_proto"
+LOCAL_MYSQL_DATABASE = "kardashiandb"
 
 mysql_engine = MySQLDatabaseHandler(LOCAL_MYSQL_USER,LOCAL_MYSQL_USER_PASSWORD,LOCAL_MYSQL_PORT,LOCAL_MYSQL_DATABASE)
 
 # Path to init.sql file. This file can be replaced with your own file for testing on localhost, but do NOT move the init.sql file
-mysql_engine.load_file_into_db(os.path.join(os.environ['ROOT_PATH'],'init_new.sql'))
+mysql_engine.load_file_into_db()
 
 app = Flask(__name__)
 CORS(app)
