@@ -28,6 +28,16 @@
             document.getElementById('filter-text-val').focus()
         }
 
+        let debounceTimer;  // Global variable to track the timer
+
+        function debounce(func, delay) {
+            return function() {
+                clearTimeout(debounceTimer);  // Reset the timer on each keypress
+                debounceTimer = setTimeout(() => func.apply(this, arguments), delay);
+            };
+        }
+
+
         // function filterText(){
         //     document.getElementById("answer-box").innerHTML = ""
         //     console.log(document.getElementById("filter-text-val").value)
@@ -49,7 +59,9 @@
                  fetch("/search?" + new URLSearchParams({ query: query }).toString()) 
                  .then((response) => response.json())
                  .then((data) => {
-                     data.forEach(perfume => {
+                    let slicedata = data.slice(0,5);
+                    document.getElementById("answer-box").innerHTML = ""; 
+                     slicedata.forEach(perfume => {
                             let tempDiv = document.createElement("div");
                             tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
                             document.getElementById("answer-box").appendChild(tempDiv);
@@ -57,6 +69,7 @@
         });
 
         }
+        document.getElementById("filter-text-val").addEventListener("keyup", debounce(filterText, 5000));
             
     </script>
 </body>
