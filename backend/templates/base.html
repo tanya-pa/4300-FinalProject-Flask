@@ -17,10 +17,10 @@
 
     <script>
 
-        function answerBoxTemplate(title,titleDesc){
+        function answerBoxTemplate(name,brand,notes){
             return `<div class='perfume-result'>
-                <h3 class='perfume-name'>${perfumeName}</h3>
-                <p class='perfume-description'>${perfumeDescription}</p>
+                <h3 class='perfume-name'>${name} <span class='perfume-brand'>(${brand})</span></h3>
+                <p class='perfume-notes'><strong>Notes:</strong> ${notes}</p>
             </div>`
         }
 
@@ -51,7 +51,7 @@
                  .then((data) => {
                      data.forEach(perfume => {
                             let tempDiv = document.createElement("div");
-                            tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.description);
+                            tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
                             document.getElementById("answer-box").appendChild(tempDiv);
                 });
         });

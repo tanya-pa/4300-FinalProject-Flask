@@ -28,6 +28,6 @@ CREATE TABLE fragrance (
         accords = clean(row['Accords'])
 
         f.write(
-            f"INSERT INTO fragrance (name, brand, year, top_notes, middle_notes, base_notes, all_notes, accords) "
+            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords) "
             f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}');\n"
         )
