@@ -35,11 +35,6 @@
     align-items: center;
 }
 
-.title-box img {
-    width: 300px; /* or however small you want */
-    height: auto; /* keeps proportions */
-    margin-bottom: 20px;
-}
 
 .input-box input{
     width: 100%;
