@@ -1,4 +1,4 @@
-.full-body-container{
+/* .full-body-container{
     position: absolute;
     top:0;
     left:0;
@@ -11,8 +11,17 @@
     align-items: center;
     flex-direction: column;
     /* padding-bottom: 100px */
-}
 
+.full-body-container {
+    position: relative; /* Change from absolute to relative */
+    min-height: 100vh; /* Ensures it takes at least the full viewport height */
+    width: 100%;
+    display: flex;
+    justify-content: center; /* Centers everything vertically */
+    align-items: center;
+    flex-direction: column;
+    padding-bottom: 150px; /* Adds space at the bottom */
+}
 
 .input-box{
     border-radius: 50px;
