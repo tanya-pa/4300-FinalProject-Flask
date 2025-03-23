@@ -19,3 +19,5 @@ dist/
 build/
 *.egg-info/
 helpers/*
+
+backend/myenv/
