@@ -28,6 +28,17 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
+query_sql = "SELECT name, brand, all_notes, accords FROM fragrance"
+data = mysql_engine.query_selector(query_sql).fetchall()
+
+notes_corpus = [row[2].lower() for row in data] 
+
+vectorizer = TfidfVectorizer()
+if not hasattr(mysql_engine, 'tfidf_matrix'):
+    mysql_engine.tfidf_matrix = vectorizer.fit_transform(notes_corpus)  
+    mysql_engine.vectorizer = vectorizer
+
+
 def wagner_fischer(s1, s2):
     """Compute the edit distance between two strings using the Wagner-Fischer algorithm."""
     len_s1, len_s2 = len(s1), len(s2)
@@ -51,16 +62,8 @@ def wagner_fischer(s1, s2):
 def sql_search(perfume_query):
     """Search for perfumes based on name, brand, and notes."""
     perfume_query = perfume_query.lower()
-
-    query_sql = "SELECT name, brand, all_notes, accords FROM fragrance"
-    data = mysql_engine.query_selector(query_sql).fetchall()
-
     perfumes = []
-    notes_corpus = [row[2].lower() for row in data] 
-
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(notes_corpus)  
-    query_vector = vectorizer.transform([perfume_query])  
+    query_vector = mysql_engine.vectorizer.transform([perfume_query])
 
     for i, row in enumerate(data):
         perfume_name = row[0].lower()  
@@ -71,7 +74,7 @@ def sql_search(perfume_query):
         name_distance = wagner_fischer(perfume_query, perfume_name)
         brand_distance = wagner_fischer(perfume_query, brand_name)
 
-        notes_similarity = 1 - cosine(tfidf_matrix[i].toarray().ravel(), query_vector.toarray().ravel())  
+        notes_similarity = 1 - cosine(mysql_engine.tfidf_matrix[i].toarray().ravel(), query_vector.toarray().ravel())  
         if np.isnan(notes_similarity):  
             notes_similarity = 0  
 

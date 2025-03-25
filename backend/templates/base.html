@@ -51,25 +51,39 @@
         //     }));
 
             function filterText() {
-                document.getElementById("answer-box").innerHTML = ""; 
+                // document.getElementById("answer-box").innerHTML = ""; 
                 let query = document.getElementById("filter-text-val").value;
     
                 console.log(query); 
 
-                 fetch("/search?" + new URLSearchParams({ query: query }).toString()) 
-                 .then((response) => response.json())
-                 .then((data) => {
-                    let slicedata = data.slice(0,5);
-                    document.getElementById("answer-box").innerHTML = ""; 
-                     slicedata.forEach(perfume => {
-                            let tempDiv = document.createElement("div");
-                            tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
-                            document.getElementById("answer-box").appendChild(tempDiv);
-                });
+                fetch("/search?" + new URLSearchParams({ query: query }).toString()) 
+                .then((response) => response.json())
+                .then((data) => {
+                document.getElementById("answer-box").innerHTML = "";  
+                data.slice(0,5).forEach(perfume => {
+                        let tempDiv = document.createElement("div");
+                        tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
+                        document.getElementById("answer-box").appendChild(tempDiv);
         });
+    });
+
+
+            
+
+        //          fetch("/search?" + new URLSearchParams({ query: query }).toString()) 
+        //          .then((response) => response.json())
+        //          .then((data) => {
+        //             let slicedata = data.slice(0,5);
+        //             document.getElementById("answer-box").innerHTML = ""; 
+        //              slicedata.forEach(perfume => {
+        //                     let tempDiv = document.createElement("div");
+        //                     tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
+        //                     document.getElementById("answer-box").appendChild(tempDiv);
+        //         });
+        // });
 
         }
-        document.getElementById("filter-text-val").addEventListener("keyup", debounce(filterText, 5000));
+        document.getElementById("filter-text-val").addEventListener("keyup", debounce(filterText, 10000));
             
     </script>
 </body>
