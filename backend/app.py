@@ -2,10 +2,11 @@ import json
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
+from decimal import Decimal
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
 from scipy.spatial.distance import cosine
-from collections import Counter
 import numpy as np
 
 # ROOT_PATH for linking with all your files. 
@@ -28,67 +29,52 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
-query_sql = "SELECT name, brand, all_notes, accords FROM fragrance"
+query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, url FROM fragrance"
 data = mysql_engine.query_selector(query_sql).fetchall()
 
-notes_corpus = [row[2].lower() for row in data] 
-
+notes_corpus = [row[5].lower() for row in data] 
 vectorizer = TfidfVectorizer()
-if not hasattr(mysql_engine, 'tfidf_matrix'):
-    mysql_engine.tfidf_matrix = vectorizer.fit_transform(notes_corpus)  
-    mysql_engine.vectorizer = vectorizer
+tfidf_matrix = vectorizer.fit_transform(notes_corpus)
 
+svd = TruncatedSVD(n_components=100)
+svd_matrix = svd.fit_transform(tfidf_matrix)
 
-def wagner_fischer(s1, s2):
-    """Compute the edit distance between two strings using the Wagner-Fischer algorithm."""
-    len_s1, len_s2 = len(s1), len(s2)
-    dp = [[0] * (len_s2 + 1) for _ in range(len_s1 + 1)]
+mysql_engine.vectorizer = vectorizer
+mysql_engine.svd_matrix = svd_matrix
+mysql_engine.svd_model = svd
 
-    for i in range(len_s1 + 1):
-        for j in range(len_s2 + 1):
-            if i == 0:
-                dp[i][j] = j  
-            elif j == 0:
-                dp[i][j] = i  
-            elif s1[i - 1] == s2[j - 1]:
-                dp[i][j] = dp[i - 1][j - 1]
-            else:
-                dp[i][j] = 1 + min(dp[i - 1][j], 
-                                   dp[i][j - 1],   
-                                   dp[i - 1][j - 1]) 
-
-    return dp[len_s1][len_s2]
-
-def sql_search(perfume_query):
+def sql_search(perfume_query, brand_filter="", gender_filter=""):
     """Search for perfumes based on name, brand, and notes."""
     perfume_query = perfume_query.lower()
-    perfumes = []
     query_vector = mysql_engine.vectorizer.transform([perfume_query])
+    query_svd = mysql_engine.svd_model.transform(query_vector)
 
+    results = []
     for i, row in enumerate(data):
-        perfume_name = row[0].lower()  
-        brand_name = row[1].lower()  
-        all_notes = row[2].lower()  
-        accords = row[3].lower()  
+        name, brand, top, middle, base, notes, accords, gender, rating, year, url = row
 
-        name_distance = wagner_fischer(perfume_query, perfume_name)
-        brand_distance = wagner_fischer(perfume_query, brand_name)
+        if brand_filter and brand_filter.lower() not in brand.lower():
+            continue
+        if gender_filter and gender_filter.lower() not in gender.lower():
+            continue
 
-        notes_similarity = 1 - cosine(mysql_engine.tfidf_matrix[i].toarray().ravel(), query_vector.toarray().ravel())  
-        if np.isnan(notes_similarity):  
-            notes_similarity = 0  
+        sim = 1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel())
+        sim = 0 if np.isnan(sim) else sim
 
-        normalized_name_score = 1 / (1 + name_distance)
-        normalized_brand_score = 1 / (1 + brand_distance)
+        normalized_rating = float(rating) / 5.0 if rating else 0
+        score = 0.7 * sim + 0.3 * normalized_rating
 
-        final_score = (0.5 * normalized_name_score) + (0.3 * normalized_brand_score) + (0.7 * notes_similarity)
-        perfumes.append((final_score, row))
+        results.append((score, row))
 
-    perfumes.sort(key=lambda x: x[0], reverse=True)
-    keys = ["name", "brand", "all_notes", "accords"]
-    top_matches = [dict(zip(keys, perfume[1])) for perfume in perfumes[:5]]
+    results.sort(key=lambda x: x[0], reverse=True)
+    keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "url"]
+    def convert_decimal(obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return obj
 
-    return json.dumps(top_matches)
+    return json.dumps(
+    [dict(zip(keys, [convert_decimal(val) for val in r[1]])) for r in results[:5]])
 
 @app.route("/")
 def home():
@@ -97,7 +83,9 @@ def home():
 @app.route("/search")
 def perfume_search():
     query = request.args.get("query")
-    return sql_search(query)
+    brand = request.args.get("brand", "")
+    gender = request.args.get("gender", "")
+    return sql_search(query, brand, gender)
 
 if 'DB_NAME' not in os.environ:
     app.run(debug=True,host="0.0.0.0",port=5000)

@@ -1,89 +1,69 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - Flaskr</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <body>
-    <div class="full-body-container"> 
-        <div class="title-box">
-            <div>
-                <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
-            </div>
-            <div class="input-box" onclick="sendFocus()">
-                <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input class="scent-search" placeholder='Not sure where to start? Try: "Marc Jacobs floral perfume for women"...' id="filter-text-val" onkeyup="filterText()">
-            </div>
+<div class="full-body-container">
+    <div class="title-box">
+        <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
+        <div class="input-box" onclick="sendFocus()">
+            <img src="{{ url_for('static', filename='images/mag.png') }}" />
+            <input id="filter-text-val" class="scent-search" placeholder="Try: 'floral perfume for women'" onkeyup="filterText()">
         </div>
-        <div id="answer-box"></div>
+        <div>
+            <select id="brand-filter">
+                <option value="">All Brands</option>
+                <option value="Dior">Dior</option>
+                <option value="Gucci">Gucci</option>
+            </select>
+            <select id="gender-filter">
+                <option value="">All Genders</option>
+                <option value="Women">Women</option>
+                <option value="Men">Men</option>
+                <option value="Unisex">Unisex</option>
+            </select>
+        </div>
     </div>
+    <div id="answer-box"></div>
+</div>
 
-    <script>
+<script>
+    function answerBoxTemplate(p) {
+        return `<div class='perfume-result'>
+            <h3>${p.name} <span class='perfume-brand'>(${p.brand})</span></h3>
+            <p><strong>Top:</strong> ${p.top_notes}</p>
+            <p><strong>Middle:</strong> ${p.middle_notes}</p>
+            <p><strong>Base:</strong> ${p.base_notes}</p>
+            <p><strong>Accords:</strong> ${p.accords}</p>
+            <p><strong>Gender:</strong> ${p.gender}</p>
+            <p><strong>Rating:</strong> ${p.rating}</p>
+            <p><strong>Year:</strong> ${p.year}</p>
+            <a href="${p.url}" target="_blank">More Info</a>
+        </div>`
+    }
 
-        function answerBoxTemplate(name,brand,notes){
-            return `<div class='perfume-result'>
-                <h3 class='perfume-name'>${name} <span class='perfume-brand'>(${brand})</span></h3>
-                <p class='perfume-notes'><strong>Notes:</strong> ${notes}</p>
-            </div>`
-        }
+    function sendFocus() {
+        document.getElementById('filter-text-val').focus()
+    }
 
-        function sendFocus(){
-            document.getElementById('filter-text-val').focus()
-        }
+    function filterText() {
+        let query = document.getElementById("filter-text-val").value;
+        let brand = document.getElementById("brand-filter").value;
+        let gender = document.getElementById("gender-filter").value;
 
-        let debounceTimer;  // Global variable to track the timer
-
-        function debounce(func, delay) {
-            return function() {
-                clearTimeout(debounceTimer);  // Reset the timer on each keypress
-                debounceTimer = setTimeout(() => func.apply(this, arguments), delay);
-            };
-        }
-
-
-        // function filterText(){
-        //     document.getElementById("answer-box").innerHTML = ""
-        //     console.log(document.getElementById("filter-text-val").value)
-        //     fetch("/episodes?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
-        //     .then((response) => response.json())
-        //     .then((data) => data.forEach(row => {
-                
-        //         let tempDiv = document.createElement("div")
-        //         tempDiv.innerHTML = answerBoxTemplate(row.title,row.descr)
-        //         document.getElementById("answer-box").appendChild(tempDiv)
-        //     }));
-
-            function filterText() {
-                // document.getElementById("answer-box").innerHTML = ""; 
-                let query = document.getElementById("filter-text-val").value;
-    
-                console.log(query); 
-
-                fetch("/search?" + new URLSearchParams({ query: query }).toString()) 
-                .then((response) => response.json())
-                .then((data) => {
-                document.getElementById("answer-box").innerHTML = "";  
-                data.slice(0,5).forEach(perfume => {
-                        let tempDiv = document.createElement("div");
-                        tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
-                        document.getElementById("answer-box").appendChild(tempDiv);
-        });
-    });
-
-
-            
-
-        //          fetch("/search?" + new URLSearchParams({ query: query }).toString()) 
-        //          .then((response) => response.json())
-        //          .then((data) => {
-        //             let slicedata = data.slice(0,5);
-        //             document.getElementById("answer-box").innerHTML = ""; 
-        //              slicedata.forEach(perfume => {
-        //                     let tempDiv = document.createElement("div");
-        //                     tempDiv.innerHTML = answerBoxTemplate(perfume.name, perfume.brand, perfume.all_notes);
-        //                     document.getElementById("answer-box").appendChild(tempDiv);
-        //         });
-        // });
-
-        }
-        document.getElementById("filter-text-val").addEventListener("keyup", debounce(filterText, 15000));
-            
-    </script>
+        fetch("/search?" + new URLSearchParams({ query, brand, gender }))
+            .then((response) => response.json())
+            .then((data) => {
+                document.getElementById("answer-box").innerHTML = "";
+                data.forEach(p => {
+                    let tempDiv = document.createElement("div");
+                    tempDiv.innerHTML = answerBoxTemplate(p);
+                    document.getElementById("answer-box").appendChild(tempDiv);
+                });
+            });
+    }
+</script>
 </body>
+</html>

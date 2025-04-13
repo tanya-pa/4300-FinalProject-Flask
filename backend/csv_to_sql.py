@@ -12,9 +12,11 @@ CREATE TABLE fragrance (
     middle_notes TEXT,
     base_notes TEXT,
     all_notes TEXT,
-    accords TEXT
-    gender TEXT
-    rating FLOAT()
+    accords TEXT,
+    gender VARCHAR(255),
+    url TEXT,
+    rating DECIMAL(3, 2),
+    year SMALLINT
 );\n\n""")
 
     for _, row in df.iterrows():
@@ -29,10 +31,12 @@ CREATE TABLE fragrance (
         all_notes = clean(row['Notes'])
         accords = clean(row['Accords'])
         gender = clean(row['Gender'])
+        url = clean(row['url'])
         rating = clean(row['Rating Value'])
+        year = clean(row['Year'])
 
 
         f.write(
-            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating) "
-            f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}, '{gender}', '{rating});\n"
+            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, url, rating, year) "
+            f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}', '{gender}', '{url}', {rating}, {year});\n"
         )
