@@ -32,7 +32,7 @@ CORS(app)
 query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, url FROM fragrance"
 data = mysql_engine.query_selector(query_sql).fetchall()
 
-notes_corpus = [f"{row[5].lower()} {row[6].lower()}" for row in data]
+notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()}" for row in data]
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(notes_corpus)
 
@@ -55,7 +55,7 @@ def sql_search(perfume_query, brand_filter="", gender_filter=""):
 
         if brand_filter and brand_filter.lower() not in brand.lower():
             continue
-        if gender_filter and gender_filter.lower() not in gender.lower():
+        if gender_filter and gender_filter.lower() != gender.lower():
             continue
 
         sim = 1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel())
