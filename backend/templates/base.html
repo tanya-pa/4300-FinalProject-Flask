@@ -57,11 +57,8 @@
             <input id="filter-text-val" class="scent-search" placeholder="Try: 'floral perfume for women'">
         </div>
         <div>
-            <select id="brand-filter">
-                <option value="">All Brands</option>
-                <option value="Dior">Dior</option>
-                <option value="Gucci">Gucci</option>
-            </select>
+            <input id="brand-filter" placeholder="Type a brand..." 
+                style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
             <select id="gender-filter">
                 <option value="">All Genders</option>
                 <option value="Women">Women</option>
@@ -116,7 +113,9 @@
             performSearch();
         }
     });
-    document.getElementById("brand-filter").addEventListener("change", performSearch);
+    document.getElementById("brand-filter").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") performSearch();
+    });
     document.getElementById("gender-filter").addEventListener("change", performSearch);
 </script>
 </body>
