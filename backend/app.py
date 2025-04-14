@@ -77,7 +77,7 @@ def sql_search(perfume_query, brand_filter="", gender_filter=""):
         perfume['name'] = perfume['name'].title()
         perfume['brand'] = perfume['brand'].title()
         perfume['display_name'] = f"{perfume['name']} by {perfume['brand']}"
-        perfume['rating_value'] = f"User Rating: {perfume['rating']}"
+        perfume['rating_value'] = f"{perfume['rating']}"
 
     return json.dumps(top_results)
 
