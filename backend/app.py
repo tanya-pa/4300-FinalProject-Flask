@@ -32,7 +32,7 @@ CORS(app)
 query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, url FROM fragrance"
 data = mysql_engine.query_selector(query_sql).fetchall()
 
-notes_corpus = [row[5].lower() for row in data] 
+notes_corpus = [f"{row[5].lower()} {row[6].lower()}" for row in data]
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(notes_corpus)
 
@@ -72,9 +72,14 @@ def sql_search(perfume_query, brand_filter="", gender_filter=""):
         if isinstance(obj, Decimal):
             return float(obj)
         return obj
+    top_results =  [dict(zip(keys, [convert_decimal(val) for val in r[1]])) for r in results[:5]]
+    for perfume in top_results:
+        perfume['name'] = perfume['name'].title()
+        perfume['brand'] = perfume['brand'].title()
+        perfume['display_name'] = f"{perfume['name']} by {perfume['brand']}"
+        perfume['rating_value'] = f"User Rating: {perfume['rating']}"
 
-    return json.dumps(
-    [dict(zip(keys, [convert_decimal(val) for val in r[1]])) for r in results[:5]])
+    return json.dumps(top_results)
 
 @app.route("/")
 def home():
