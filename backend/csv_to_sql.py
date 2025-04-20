@@ -16,7 +16,8 @@ CREATE TABLE fragrance (
     gender VARCHAR(255),
     url TEXT,
     rating DECIMAL(3, 2),
-    year VARCHAR(10)
+    year VARCHAR(10),
+    country VARCHAR(255)
 );\n\n""")
 
     for _, row in df.iterrows():
@@ -35,8 +36,9 @@ CREATE TABLE fragrance (
         rating = clean(row['Rating Value'])
         year_val = row['Year']
         year = "'N/A'" if year_val == 0 else f"'{int(year_val)}'"
+        country = clean(row['Country'])
 
         f.write(
-            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, url, rating, year) "
-            f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}', '{gender}', '{url}', {rating}, {year});\n"
+            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, url, rating, year, country) "
+            f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}', '{gender}', '{url}', {rating}, {year}, '{country}');\n"
         )

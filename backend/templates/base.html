@@ -6,21 +6,44 @@
     <style>
         body {
             font-family: 'Georgia', serif;
-            background-color: #fff0f5; /* light pink */
+            background-color: #fff0f5;
         }
         .perfume-result {
-            margin: 40px 0;
-            padding-left: 20px;
-            border-left: 3px solid #f5c6d6; /* light pink */
+            background-color: #ffffff;
+            border: 2px solid #f5c6d6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 700px;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(245, 198, 214, 0.2);
         }
         .perfume-result h3 {
             margin-bottom: 10px;
             font-size: 1.4em;
-            color: #cc5786; /* rose */
+            color: #cc5786;
         }
         .perfume-info p {
-            margin-left: 20px;
             margin-bottom: 6px;
+        }
+        .perfume-info a {
+            color: #cc5786;
+        }
+        .rank-badge {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            background-color: #cc5786;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         select {
             margin: 10px;
@@ -46,6 +69,27 @@
             border: 1px solid #f5c6d6;
             background-color: #fff8fa;
         }
+        #no-results-message {
+            display: none;
+            text-align: center;
+            margin-top: 2em;
+            animation: fadeIn 0.4s ease-in;
+        }
+        .similarity-box {
+            display: inline-block;
+            background-color: #ffe0ec;
+            color: #cc3366;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #f5c6d6;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }   
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -57,7 +101,9 @@
             <input id="filter-text-val" class="scent-search" placeholder="Try: 'floral and fruity perfume for summer'">
         </div>
         <div>
-            <input id="brand-filter" placeholder="Type a brand..." 
+            <input id="brand-filter" placeholder="Type a brand" 
+                style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
+            <input id="country-filter" placeholder="Enter origin country" 
                 style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
             <select id="gender-filter">
                 <option value="">All Genders</option>
@@ -68,21 +114,27 @@
         </div>
     </div>
     <div id="answer-box"></div>
+    <div id="no-results-message">
+        <h3 style="color: #cc5786;">No results found. Please change your search.</h3>
+    </div>
 </div>
 
 <script>
-    function answerBoxTemplate(p) {
+    function answerBoxTemplate(p, index) {
         return `<div class='perfume-result'>
+            <div class="rank-badge">${index + 1}</div>
             <h3>${p.display_name}</h3>
             <div class="perfume-info">
-                <p><strong>Top:</strong> ${p.top_notes}</p>
-                <p><strong>Middle:</strong> ${p.middle_notes}</p>
-                <p><strong>Base:</strong> ${p.base_notes}</p>
+                <p><strong>Similarity Score:</strong> <span class="similarity-box">${p.similarity_score}%</span></p>
+                <p><strong>Top Notes:</strong> ${p.top_notes}</p>
+                <p><strong>Middle Notes:</strong> ${p.middle_notes}</p>
+                <p><strong>Base Notes:</strong> ${p.base_notes}</p>
                 <p><strong>Accords:</strong> ${p.accords}</p>
                 <p><strong>Gender:</strong> ${p.gender}</p>
+                <p><strong>Country:</strong> ${p.country}</p>
                 <p><strong>User Rating:</strong> ${p.rating_value}</p>
                 <p><strong>Year:</strong> ${p.year}</p>
-                <a href="${p.url}" target="_blank">More Info</a>
+                <p><a href="${p.url}" target="_blank">More Info</a></p>
             </div>
         </div>`;
     }
@@ -94,16 +146,23 @@
     function performSearch() {
         const query = document.getElementById("filter-text-val").value;
         const brand = document.getElementById("brand-filter").value;
+        const country = document.getElementById("country-filter").value;
         const gender = document.getElementById("gender-filter").value;
 
-        fetch("/search?" + new URLSearchParams({ query, brand, gender }))
+        fetch("/search?" + new URLSearchParams({ query, brand, country, gender }))
             .then((response) => response.json())
             .then((data) => {
                 const box = document.getElementById("answer-box");
+                const msg = document.getElementById("no-results-message");
                 box.innerHTML = "";
-                data.forEach(p => {
+                msg.style.display = "none";
+                if (data.length === 0) {
+                    msg.style.display = "block";
+                    return;
+                }
+                data.forEach((p, i) => {
                     const tempDiv = document.createElement("div");
-                    tempDiv.innerHTML = answerBoxTemplate(p);
+                    tempDiv.innerHTML = answerBoxTemplate(p, i);
                     box.appendChild(tempDiv);
                 });
             });
@@ -114,6 +173,9 @@
         }
     });
     document.getElementById("brand-filter").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") performSearch();
+    });
+    document.getElementById("country-filter").addEventListener("keydown", function(e) {
         if (e.key === "Enter") performSearch();
     });
     document.getElementById("gender-filter").addEventListener("change", performSearch);
