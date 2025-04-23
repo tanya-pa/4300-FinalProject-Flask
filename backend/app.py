@@ -29,10 +29,10 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
-query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, url FROM fragrance"
+query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, country, url FROM fragrance"
 data = mysql_engine.query_selector(query_sql).fetchall()
 
-notes_corpus = [f"{row[5].lower()} {row[6].lower()}" for row in data]
+notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()}" for row in data]
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(notes_corpus)
 
@@ -43,43 +43,55 @@ mysql_engine.vectorizer = vectorizer
 mysql_engine.svd_matrix = svd_matrix
 mysql_engine.svd_model = svd
 
-def sql_search(perfume_query, brand_filter="", gender_filter=""):
-    """Search for perfumes based on name, brand, and notes."""
+def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=""):
+    """Search for perfumes based on name, brand, country, gender, and notes."""
     perfume_query = perfume_query.lower()
     query_vector = mysql_engine.vectorizer.transform([perfume_query])
     query_svd = mysql_engine.svd_model.transform(query_vector)
 
     results = []
     for i, row in enumerate(data):
-        name, brand, top, middle, base, notes, accords, gender, rating, year, url = row
-
+        name, brand, top, middle, base, notes, accords, gender, rating, year, country, url = row
         if brand_filter and brand_filter.lower() not in brand.lower():
             continue
-        if gender_filter and gender_filter.lower() not in gender.lower():
+        if gender_filter and gender_filter.lower() != gender.lower():
             continue
-
-        sim = 1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel())
-        sim = 0 if np.isnan(sim) else sim
+        if country_filter and country_filter.strip().lower() not in country.strip().lower():
+            continue
+        if perfume_query.strip() == "":
+            sim = 1.0
+        else:
+            sim = 1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel())
+            sim = 0.0 if np.isnan(sim) else sim
 
         normalized_rating = float(rating) / 5.0 if rating else 0
         score = 0.7 * sim + 0.3 * normalized_rating
-
-        results.append((score, row))
+        sim = sim*100
+        results.append((score, sim, row))
 
     results.sort(key=lambda x: x[0], reverse=True)
-    keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "url"]
+    keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "country", "url"]
     def convert_decimal(obj):
         if isinstance(obj, Decimal):
             return float(obj)
         return obj
-    top_results =  [dict(zip(keys, [convert_decimal(val) for val in r[1]])) for r in results[:5]]
-    for perfume in top_results:
+    
+    top_results = []
+    for score, sim, row in results[:5]:
+        perfume = dict(zip(keys, [convert_decimal(val) for val in row]))
         perfume['name'] = perfume['name'].title()
         perfume['brand'] = perfume['brand'].title()
         perfume['display_name'] = f"{perfume['name']} by {perfume['brand']}"
         perfume['rating_value'] = f"{perfume['rating']}"
+        perfume['similarity_score'] = f"{sim:.2f}"
+        top_results.append(perfume)
 
-    return json.dumps(top_results)
+    if not top_results:
+        return json.dumps([])
+    
+    return json.dumps(top_results, default=convert_decimal)
+    
+    
 
 @app.route("/")
 def home():
@@ -90,7 +102,8 @@ def perfume_search():
     query = request.args.get("query")
     brand = request.args.get("brand", "")
     gender = request.args.get("gender", "")
-    return sql_search(query, brand, gender)
+    country = request.args.get("country", "")
+    return sql_search(query, brand, gender, country)
 
 if 'DB_NAME' not in os.environ:
     app.run(debug=True,host="0.0.0.0",port=5000)
