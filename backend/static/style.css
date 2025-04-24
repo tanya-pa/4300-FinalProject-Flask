@@ -40,6 +40,15 @@
     font-style: italic;
 }
 
+.scent-search {
+    width: 100%;
+    box-sizing: border-box; /* ensures padding/border don’t overflow */
+    padding: 10px;           /* optional: for a more comfortable typing space */
+    border: none;
+    border-radius: 8px;      /* optional: for smoother corners */
+    background-color: pink;  /* assuming the pink box is set via background */
+}
+
 #answer-box{
     width: 700px;
     margin-top:50px; 
