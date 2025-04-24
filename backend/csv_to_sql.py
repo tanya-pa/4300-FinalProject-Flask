@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("frag_clean.csv")
+df = pd.read_csv("frag_clean2.csv")
 
 with open("init.sql", "w", encoding="utf-8") as f:
     f.write("DROP TABLE IF EXISTS fragrance;\n")
@@ -16,7 +16,8 @@ CREATE TABLE fragrance (
     gender VARCHAR(255),
     url TEXT,
     rating DECIMAL(3, 2),
-    year SMALLINT
+    year VARCHAR(10),
+    country VARCHAR(255)
 );\n\n""")
 
     for _, row in df.iterrows():
@@ -33,10 +34,11 @@ CREATE TABLE fragrance (
         gender = clean(row['Gender'])
         url = clean(row['url'])
         rating = clean(row['Rating Value'])
-        year = clean(row['Year'])
-
+        year_val = row['Year']
+        year = "'N/A'" if year_val == 0 else f"'{int(year_val)}'"
+        country = clean(row['Country'])
 
         f.write(
-            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, url, rating, year) "
-            f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}', '{gender}', '{url}', {rating}, {year});\n"
+            f"INSERT INTO fragrance (name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, url, rating, year, country) "
+            f"VALUES ('{name}', '{brand}',  '{top}', '{middle}', '{base}', '{all_notes}', '{accords}', '{gender}', '{url}', {rating}, {year}, '{country}');\n"
         )
