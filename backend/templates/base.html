@@ -61,36 +61,10 @@
 <script>
 
     function answerBoxTemplate(p, index) {
-<<<<<<< Updated upstream
-    return `
-    <div class="perfume-result">
-        <div class="perfume-right">
-            <div class="gender-tab">${p.gender}</div>
-            <h3>${p.display_name}</h3>
-            <div class="perfume-meta-row">
-                <span><strong class="perfume-meta-label">Country:</strong> ${p.country}</span>
-                <span><strong class="perfume-meta-label">Year:</strong> ${p.year}</span>
-                <span>
-                    <strong class="perfume-meta-label">User Rating:</strong> 
-                    ${p.rating_value}
-                    <span class="stars">${'★'.repeat(Math.round(p.rating_value))}</span>
-                </span>
-            </div>
-            <span><strong class="perfume-meta-label">Accords:</strong> ${p.accords}</span>
-            <div class="perfume-notes-section">
-                <div class="note-group">
-                    <h4 class="note-label">Top Notes</h4>
-                    <div class="note-bubble-row">
-                    ${p.top_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
-                    </div>
-                </div>
-                <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
-=======
         return `
         <div class="perfume-result">
             <div class="perfume-left">
                
->>>>>>> Stashed changes
             </div>
             <div class="perfume-right">
                 <div class="gender-tab">${p.gender}</div>
@@ -131,9 +105,6 @@
         <div class="similarity-line-bottom">
             <strong>Similarity Score:</strong>
             <span class="similarity-box">${p.similarity_score}%</span>
-        </div>
-        <div>
-            <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Information</a>
         </div>
     </div>`;
     }
