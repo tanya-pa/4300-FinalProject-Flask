@@ -63,12 +63,12 @@ body {
 }
 
 .perfume-result {
-    width: 100%; /* match #answer-box */
+    width: 100%; 
     background-color: #ffffff;
     border: 2px solid #f5c6d6;
     border-radius: 10px;
     padding: 20px;
-    margin: 30px 0; /* no auto margin so it aligns with #answer-box */
+    margin: 30px 0; 
     position: relative;
     box-shadow: 0 4px 10px rgba(245, 198, 214, 0.2);
     display: flex;
@@ -296,4 +296,55 @@ select {
     font-family: 'Georgia', serif;
     border-radius: 8px 0 8px 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.notes-dropdown {
+    width: 900px;             
+    margin: 20px auto 0 auto; 
+    padding: 0;              
+    border: 2px solid #f5c6d6;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(245, 198, 214, 0.2);
+    font-family: 'Georgia', serif;
+    color: #333;
+    box-sizing: border-box;   
+}
+
+
+.dropdown-toggle {
+    width: 100%;
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    font-family: 'Times New Roman', Times, serif;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    color: #cc5786;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    padding: 0 20px 15px 20px;
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+}
+.dropdown-content strong {
+    color: #cc5786;
+}
+
+.notes-dropdown p {
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+#dropdown-arrow {
+    transition: transform 0.3s ease;
+}
+
+#dropdown-arrow.rotated {
+    transform: rotate(180deg);
 }

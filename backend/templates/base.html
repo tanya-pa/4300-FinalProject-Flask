@@ -27,6 +27,20 @@
             </select>
         </div>
     </div>
+    <div class="notes-dropdown">
+        <button class="dropdown-toggle" onclick="toggleNotesDropdown()">
+            New to perfumes? Learn how top, middle, and base notes work!  
+            <span id="dropdown-arrow">▼</span>
+        </button>
+        <div class="dropdown-content" id="notes-dropdown-content">
+            <p> Perfumes are composed of different notes that evolve over time. Think of them as a musical composition with different phases:
+            </p>
+            <p><strong>Top notes</strong> are the first impression of a perfume that last 5-15 minutes. They are typically light and fresh, like citrus or herbs.</p>
+            <p><strong>Middle notes</strong> (heart notes) are the core of the fragrance that develop after top notes fade. They last 2-4 hours and are often floral or fruity.</p>
+            <p><strong>Base notes</strong> are the foundation of the fragrance and are typically rich, deep scents like vanilla, musk, or amber. They last the longest, typically up to 10 hours!</p>
+            <p><strong>Accords</strong> are the unique scent combinations created by blending multiple notes to form a specific impression, like “powdery” or “woody.”</p>
+        </div>
+    </div>
     <div id="answer-box"></div>
     <div id="no-results-message">
         <h3 style="color: #cc5786;">No results found. Please change your search.</h3>
@@ -39,7 +53,9 @@
     return `
     <div class="perfume-result">
         <div class="perfume-left">
-            <img src="${p.image_url || '/static/images/placeholder.svg'}" alt="${p.display_name}" style="width: 120px; height: auto; object-fit: contain; margin-bottom: 10px;" />
+            <div class="note-image-section">
+                <img src="${p.image}" alt="Note Image" style="width: 100%; max-width: 200px; margin-top: 20px;" />
+            </div>
             <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
         </div>
         <div class="perfume-right">
@@ -162,6 +178,15 @@
         };
     note = note.toLowerCase();
     return noteMap[note] || "bubble-default";
+    }
+
+    function toggleNotesDropdown() {
+    const content = document.getElementById("notes-dropdown-content");
+    const arrow = document.getElementById("dropdown-arrow");
+    const isOpen = content.style.display === "block";
+
+    content.style.display = isOpen ? "none" : "block";
+    arrow.classList.toggle("rotated");
     }
 </script>
 </body>
