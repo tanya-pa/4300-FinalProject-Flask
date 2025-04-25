@@ -36,6 +36,19 @@ notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()}" for row in
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(notes_corpus)
 
+country_mappings = {
+    "u.k.": "uk",
+    "united kingdom": "uk",
+    "united states": "usa",
+    "us": "usa",
+    "u.s.": "usa",
+    "u.s.a.": "usa",
+    "united states of america": "usa",
+    "u.a.e.": "uae",
+    "united arab emirates": "uae",
+    "saudi arabia":"arabia saudi"
+}
+
 svd = TruncatedSVD(n_components=100)
 svd_matrix = svd.fit_transform(tfidf_matrix)
 
@@ -46,6 +59,8 @@ mysql_engine.svd_model = svd
 def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=""):
     """Search for perfumes based on name, brand, country, gender, and notes."""
     perfume_query = perfume_query.lower()
+    country_filter = country_filter.strip().lower()
+    country_filter = country_mappings.get(country_filter, country_filter)
     query_vector = mysql_engine.vectorizer.transform([perfume_query])
     query_svd = mysql_engine.svd_model.transform(query_vector)
 
@@ -61,7 +76,7 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         if perfume_query.strip() == "":
             sim = 1.0
         else:
-            sim = 1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel())
+            sim = abs(1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel()))
             sim = 0.0 if np.isnan(sim) else sim
 
         normalized_rating = float(rating) / 5.0 if rating else 0
