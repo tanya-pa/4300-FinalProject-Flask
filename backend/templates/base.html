@@ -61,7 +61,6 @@
 <script>
 
     function answerBoxTemplate(p, index) {
-<<<<<<< HEAD
     return `
     <div class="perfume-result">
         <div class="perfume-right">
@@ -83,13 +82,6 @@
                     <div class="note-bubble-row">
                     ${p.top_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
                     </div>
-=======
-        return `
-        <div class="perfume-result">
-            <div class="perfume-left">
-                <div class="note-image-section">
-                    <img src="${p.image}" alt="Note Image" style="width: 100%; max-width: 200px; margin-top: 20px;" />
->>>>>>> 4998b3b4d4cfeca75525d636bbd5ff44f6e6a7c5
                 </div>
                 <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
             </div>
@@ -127,7 +119,6 @@
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
         </div>
         <div class="similarity-line-bottom">
             <strong>Similarity Score:</strong>
@@ -137,13 +128,6 @@
             <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Information</a>
         </div>
     </div>`;
-=======
-            <div class="similarity-line-bottom">
-                <strong>Similarity Score:</strong>
-                <span class="similarity-box">${p.similarity_score}%</span>
-            </div>
-        </div>`;
->>>>>>> 4998b3b4d4cfeca75525d636bbd5ff44f6e6a7c5
     }
 
 
