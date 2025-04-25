@@ -52,12 +52,6 @@
     function answerBoxTemplate(p, index) {
     return `
     <div class="perfume-result">
-        <div class="perfume-left">
-            <div class="note-image-section">
-                <img src="${p.image}" alt="Note Image" style="width: 100%; max-width: 200px; margin-top: 20px;" />
-            </div>
-            <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
-        </div>
         <div class="perfume-right">
             <div class="gender-tab">${p.gender}</div>
             <h3>${p.display_name}</h3>
@@ -95,6 +89,9 @@
         <div class="similarity-line-bottom">
             <strong>Similarity Score:</strong>
             <span class="similarity-box">${p.similarity_score}%</span>
+        </div>
+        <div>
+            <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Information</a>
         </div>
     </div>`;
     }

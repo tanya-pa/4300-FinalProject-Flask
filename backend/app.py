@@ -107,7 +107,7 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         results.append((score, sim, row, best_review))
 
     results.sort(key=lambda x: x[0], reverse=True)
-    keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "country", "url", "image"]
+    keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "country", "url"]
     def convert_decimal(obj):
         if isinstance(obj, Decimal):
             return float(obj)
@@ -122,7 +122,6 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         perfume['rating_value'] = f"{perfume['rating']}"
         perfume['similarity_score'] = f"{sim:.2f}"
         perfume['best_review'] = best_review
-        perfume["image"] = image
         top_results.append(perfume)
 
     if not top_results:
