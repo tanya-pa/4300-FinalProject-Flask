@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 from scipy.spatial.distance import cosine
 import numpy as np
+import re
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -61,12 +62,9 @@ country_mappings = {
 svd = TruncatedSVD(n_components=100)
 svd_matrix = svd.fit_transform(tfidf_matrix)
 
-# Identify the top 8 most important latent dimensions by explained variance
 explained_variance = svd.explained_variance_ratio_
 top_k = 8
 top_dimensions_indices = np.argsort(explained_variance)[::-1][:top_k]
-
-# Store in a global variable
 latent_indices = top_dimensions_indices.tolist()
 
 mysql_engine.vectorizer = vectorizer
@@ -83,7 +81,7 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
 
     results = []
     for i, row in enumerate(data):
-        name, brand, top, middle, base, notes, accords, gender, rating, year, country, url, reviews_og, description, image = row
+        name, brand, top, middle, base, notes, accords, gender, rating, year, country, url, reviews, description, image = row
         if brand_filter and brand_filter.lower() not in brand.lower():
             continue
         if gender_filter and gender_filter.lower() != gender.lower():
@@ -96,23 +94,10 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
             sim = abs(1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel()))
             sim = 0.0 if np.isnan(sim) else sim
 
-        # get best review
-        try:
-            reviews = json.loads(reviews_og)
-            if isinstance(reviews, list) and reviews:
-                review_vectors = mysql_engine.vectorizer.transform(reviews)
-                review_similarities = [1 - cosine(query_vector.toarray(), rv.toarray()) for rv in review_vectors]
-                best_review_index = int(np.argmax(review_similarities))
-                best_review = reviews[best_review_index]
-            else:
-                best_review = ""
-        except Exception:
-            best_review = ""
-
         normalized_rating = float(rating) / 5.0 if rating else 0
         score = 0.7 * sim + 0.3 * normalized_rating
         sim = sim*100
-        results.append((score, sim, row, best_review))
+        results.append((score, sim, row))
 
     results.sort(key=lambda x: x[0], reverse=True)
     keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "country", "url"]
@@ -122,29 +107,24 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         return obj
     
     top_results = []
-    for score, sim, row, best_review in results[:5]:
+    for score, sim, row in results[:5]:
         perfume = dict(zip(keys, [convert_decimal(val) for val in row]))
         perfume['name'] = perfume['name'].title()
         perfume['brand'] = perfume['brand'].title()
         perfume['display_name'] = f"{perfume['name']} by {perfume['brand']}"
         perfume['rating_value'] = f"{perfume['rating']}"
         perfume['similarity_score'] = f"{sim:.2f}"
-        perfume['best_review'] = best_review
-        perfume["image"] = image
         
-        # Get SVD feature names
         svd_vector = mysql_engine.svd_matrix[data.index(row)]
         feature_names = vectorizer.get_feature_names_out()
         components = svd.components_
 
-        # Extract the top term for each latent dimension
         top_terms = {}
         for dim in latent_indices:
             top_idx = components[dim].argmax()
             top_term = feature_names[top_idx]
             top_terms[dim] = top_term
 
-        # Normalize latent profile values
         latent_scores = [svd_vector[dim] for dim in latent_indices]
         min_val = min(latent_scores)
         max_val = max(latent_scores)

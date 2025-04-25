@@ -61,6 +61,7 @@
 <script>
 
     function answerBoxTemplate(p, index) {
+<<<<<<< Updated upstream
     return `
     <div class="perfume-result">
         <div class="perfume-right">
@@ -84,6 +85,12 @@
                     </div>
                 </div>
                 <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
+=======
+        return `
+        <div class="perfume-result">
+            <div class="perfume-left">
+               
+>>>>>>> Stashed changes
             </div>
             <div class="perfume-right">
                 <div class="gender-tab">${p.gender}</div>
@@ -113,10 +120,11 @@
                     </div>
                     <div class="note-group">
                         <h4 class="note-label">Base Notes</h4>
-                        <div class="note-bubble-row">
+                        <div class="note-bubble-row", style="margin-bottom: 60px;">
                         ${p.base_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
                         </div>
                     </div>
+                    <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
                 </div>
             </div>
         </div>
