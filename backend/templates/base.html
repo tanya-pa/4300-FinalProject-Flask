@@ -41,15 +41,27 @@
             <p><strong>Accords</strong> are the unique scent combinations created by blending multiple notes to form a specific impression, like “powdery” or “woody.”</p>
         </div>
     </div>
+     <!-- Radar Chart Container -->
+     <div style="display: flex; justify-content: center; margin-top: 30px; flex-direction: column; align-items: center;">
+        <h2 style="color:#cc5786;">Fragrance Profile</h2>
+        <select id="perfume-selector" style="margin-bottom: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6;">
+            <option value="">Select fragrance...</option>
+        </select>
+        <canvas id="radarChart" width="300" height="300"></canvas>
+    </div>
     <div id="answer-box"></div>
     <div id="no-results-message">
         <h3 style="color: #cc5786;">No results found. Please change your search.</h3>
     </div>
 </div>
 
+<!-- Add chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 
     function answerBoxTemplate(p, index) {
+<<<<<<< HEAD
     return `
     <div class="perfume-result">
         <div class="perfume-right">
@@ -71,20 +83,51 @@
                     <div class="note-bubble-row">
                     ${p.top_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
                     </div>
+=======
+        return `
+        <div class="perfume-result">
+            <div class="perfume-left">
+                <div class="note-image-section">
+                    <img src="${p.image}" alt="Note Image" style="width: 100%; max-width: 200px; margin-top: 20px;" />
+>>>>>>> 4998b3b4d4cfeca75525d636bbd5ff44f6e6a7c5
                 </div>
-                <div class="note-group">
-                    <h4 class="note-label">Middle Notes</h4>
-                    <div class="note-bubble-row">
-                    ${p.middle_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
+            </div>
+            <div class="perfume-right">
+                <div class="gender-tab">${p.gender}</div>
+                <h3>${p.display_name}</h3>
+                <div class="perfume-meta-row">
+                    <span><strong class="perfume-meta-label">Country:</strong> ${p.country}</span>
+                    <span><strong class="perfume-meta-label">Year:</strong> ${p.year}</span>
+                    <span>
+                        <strong class="perfume-meta-label">User Rating:</strong> 
+                        ${p.rating_value}
+                        <span class="stars">${'★'.repeat(Math.round(p.rating_value))}</span>
+                    </span>
+                </div>
+                <span><strong class="perfume-meta-label">Accords:</strong> ${p.accords}</span>
+                <div class="perfume-notes-section">
+                    <div class="note-group">
+                        <h4 class="note-label">Top Notes</h4>
+                        <div class="note-bubble-row">
+                        ${p.top_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                        </div>
                     </div>
-                </div>
-                <div class="note-group">
-                    <h4 class="note-label">Base Notes</h4>
-                    <div class="note-bubble-row">
-                    ${p.base_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                    <div class="note-group">
+                        <h4 class="note-label">Middle Notes</h4>
+                        <div class="note-bubble-row">
+                        ${p.middle_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                        </div>
+                    </div>
+                    <div class="note-group">
+                        <h4 class="note-label">Base Notes</h4>
+                        <div class="note-bubble-row">
+                        ${p.base_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                        </div>
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
         </div>
         <div class="similarity-line-bottom">
             <strong>Similarity Score:</strong>
@@ -94,11 +137,74 @@
             <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Information</a>
         </div>
     </div>`;
+=======
+            <div class="similarity-line-bottom">
+                <strong>Similarity Score:</strong>
+                <span class="similarity-box">${p.similarity_score}%</span>
+            </div>
+        </div>`;
+>>>>>>> 4998b3b4d4cfeca75525d636bbd5ff44f6e6a7c5
     }
 
 
     function sendFocus() {
         document.getElementById('filter-text-val').focus();
+    }
+
+    let radarChart;
+    let perfumeProfiles = {};
+
+    const ctx = document.getElementById("radarChart").getContext("2d");
+
+    function createEmptyChart() {
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Dimension Score',
+                    data: [],
+                    backgroundColor: 'rgba(204, 87, 134, 0.2)',
+                    borderColor: '#cc5786',
+                    pointBackgroundColor: '#cc5786',
+                    pointBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        suggestedMax: 1,
+                        
+                        ticks: {
+                            display: false
+                        },
+                        pointLabels: {
+                            color: '#cc3366',
+                            font: {
+                                size: 14
+                            }
+                        },
+                        grid: {
+                            color: '#f5c6d6'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateRadarChart(perfumeName) {
+        const profile = perfumeProfiles[perfumeName];
+        if (!profile) return;
+
+        const labels = Object.keys(profile);
+        const values = Object.values(profile);
+
+        radarChart.data.labels = labels;
+        radarChart.data.datasets[0].data = values;
+        radarChart.update();
     }
 
     function performSearch() {
@@ -112,19 +218,46 @@
             .then((data) => {
                 const box = document.getElementById("answer-box");
                 const msg = document.getElementById("no-results-message");
+                const dropdown = document.getElementById("perfume-selector");
                 box.innerHTML = "";
                 msg.style.display = "none";
+                dropdown.innerHTML = '<option value="">Select fragrance...</option>';
+                perfumeProfiles = {};
+
                 if (data.length === 0) {
                     msg.style.display = "block";
+                    radarChart.data.labels = [];
+                    radarChart.data.datasets[0].data = [];
+                    radarChart.update();
                     return;
                 }
+
                 data.forEach((p, i) => {
                     const tempDiv = document.createElement("div");
                     tempDiv.innerHTML = answerBoxTemplate(p, i);
-                    box.appendChild(tempDiv);
+                    box.appendChild(tempDiv)
+                    
+                    const name = p.display_name;
+                    perfumeProfiles[name] = p.latent_profile;
+                    const opt = document.createElement("option");
+                    opt.value = name;
+                    opt.textContent = name;
+                    dropdown.appendChild(opt);
                 });
+
+               // Auto-select and show the first one
+               if (data.length > 0) {
+                   dropdown.value = data[0].display_name;
+                   updateRadarChart(data[0].display_name);
+               }
+
             });
     }
+
+    document.getElementById("perfume-selector").addEventListener("change", function () {
+        updateRadarChart(this.value);
+    });
+
     document.getElementById("filter-text-val").addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             performSearch();
@@ -138,6 +271,12 @@
     });
     document.getElementById("gender-filter").addEventListener("change", performSearch);
 
+    createEmptyChart();
+
+   // Fetch dimension labels once on load
+   fetch("/static/dimension_labels.json")
+       .then(res => res.json())
+       .then(data => { dimensionLabels = data; });
 
     function getNoteColorClass(note) {
         const noteMap = {
