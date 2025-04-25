@@ -130,8 +130,6 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         perfume['rating_value'] = f"{perfume['rating']}"
         perfume['similarity_score'] = f"{sim:.2f}"
         perfume['best_review'] = best_review
-<<<<<<< HEAD
-=======
         perfume["image"] = image
         
         # Get SVD feature names
@@ -158,7 +156,6 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
 
         perfume['latent_profile'] = normalized_profile
         
->>>>>>> 4998b3b4d4cfeca75525d636bbd5ff44f6e6a7c5
         top_results.append(perfume)
 
     if not top_results:
