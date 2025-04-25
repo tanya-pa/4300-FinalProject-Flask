@@ -15,22 +15,27 @@
     align-items: center;
 }
 
-.input-box{
+.input-box {
     border-radius: 50px;
-    border:1px solid black;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     margin-top: 10px;
-    padding:12px;
+    padding: 12px 24px;
     width: 900px;
+    background-color: #ffffff;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .input-box img{
     height: 20px;
     width:20px;
+    margin-left: 10px;
 }
 
 .input-box input{
+    padding: 12px 24px;
     width: 100%;
     margin-left: 10px;
     font-size: 16px;
@@ -40,18 +45,9 @@
     font-style: italic;
 }
 
-.scent-search {
-    width: 100%;
-    box-sizing: border-box; /* ensures padding/border don’t overflow */
-    padding: 10px;           /* optional: for a more comfortable typing space */
-    border: none;
-    border-radius: 8px;      /* optional: for smoother corners */
-    background-color: pink;  /* assuming the pink box is set via background */
-}
-
-#answer-box{
-    width: 700px;
-    margin-top:50px; 
+#answer-box {
+    width: 900px;
+    margin: 50px auto 0 auto; /* top: 50px, left & right: auto, bottom: 0 */
 }
 
 .perfume-name{
@@ -60,4 +56,244 @@
 
 .perfume-description{
     font-family: 'Times New Roman', Times, serif;
+}
+body {
+    font-family: 'Georgia', serif;
+    background-color: #fff0f5;
+}
+
+.perfume-result {
+    width: 100%; /* match #answer-box */
+    background-color: #ffffff;
+    border: 2px solid #f5c6d6;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px 0; /* no auto margin so it aligns with #answer-box */
+    position: relative;
+    box-shadow: 0 4px 10px rgba(245, 198, 214, 0.2);
+    display: flex;
+    gap: 20px;
+}
+
+.perfume-result h3 {
+    margin-bottom: 10px;
+    font-size: 1.4em;
+    color: #cc5786;
+}
+
+.rank-badge {
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    background-color: #cc5786;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+select {
+    margin: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #f5c6d6;
+    font-size: 16px;
+    font-family: 'Georgia', serif;
+    background-color: #fff8fa;
+    color: #000000;
+}
+
+#filter-text-val {
+    margin-left: 10px;
+    padding: 10px;
+    font-size: 16px;
+    font-family: 'Georgia', serif;
+    border: 1px solid #f5c6d6;
+    background-color: #fff8fa;
+}
+#no-results-message {
+    display: none;
+    text-align: center;
+    margin-top: 2em;
+    animation: fadeIn 0.4s ease-in;
+}
+.similarity-box {
+    display: inline-block;
+    background-color: #ffe0ec;
+    color: #cc3366;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #f5c6d6;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+}   
+
+
+.similarity-line-bottom {
+    position: absolute;
+    bottom: 20px;  
+    right: 20px;  
+    font-family: 'Georgia', serif;
+    font-size: 0.95em;
+    color: #333;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.accord-line {
+    font-family: 'Georgia', serif;
+    font-size: 0.95em;
+    margin-bottom: 12px;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.perfume-meta-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    font-size: 0.95em; 
+    font-family: 'Georgia', serif;
+}
+
+.perfume-meta-label {
+    color: #cc5786;
+    font-weight: bold;
+}
+
+.stars {
+    color: #fbc02d; 
+    margin-left: 5px;
+    font-size: 0.85em;
+}
+
+
+.perfume-left {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.perfume-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.perfume-link {
+    text-align: center;
+    color: #cc5786;
+    text-decoration: underline;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+}
+
+.perfume-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.note-label {
+    font-family: 'Georgia', serif;
+    font-size: 0.95em;
+    font-weight: bold;
+    color: #cc5786;
+    margin-bottom: 4px;
+}
+
+.note-bubble-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.note-bubble {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-family: 'Georgia', serif;
+    border: 1px solid;
+}
+
+/* Top/Middle/Base Note Bubble Color Classes */
+.bubble-citrus {
+    background-color: #fff9cc;
+    border-color: #f0c200;
+    color: #f0c200;
+}
+
+.bubble-floral {
+    background-color: #ffe6f0;
+    border-color: #cc5786;
+    color: #cc5786;
+}
+
+.bubble-fruity {
+    background-color: #ffe4e1;
+    border-color: #ff6f61;
+    color: #ff6f61;
+}
+
+.bubble-woody {
+    background-color: #f5f5dc;
+    border-color: #8b4513;
+    color: #8b4513;
+}
+
+.bubble-sweet {
+    background-color: #fff0e6;
+    border-color: #ff9966;
+    color: #ff9966;
+}
+
+.bubble-spicy {
+    background-color: #fae3d9;
+    border-color: #e07b39;
+    color: #e07b39;
+}
+
+.bubble-aquatic {
+    background-color: #e0f7fa;
+    border-color: #007b83;
+    color: #007b83;
+}
+
+.bubble-musky {
+    background-color: #D9DED7;
+    border-color: #17334B;
+    color: #17334B;
+}
+
+.bubble-default {
+    background-color: #f9f9f9;
+    border-color: #aaa;
+    color: #555;
+}
+
+.gender-tab {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background-color: #cc5786;
+    color: white;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Georgia', serif;
+    border-radius: 8px 0 8px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }

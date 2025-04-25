@@ -3,107 +3,21 @@
 <head>
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body {
-            font-family: 'Georgia', serif;
-            background-color: #fff0f5;
-        }
-        .perfume-result {
-            background-color: #ffffff;
-            border: 2px solid #f5c6d6;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 30px auto;
-            max-width: 700px;
-            position: relative;
-            box-shadow: 0 4px 10px rgba(245, 198, 214, 0.2);
-        }
-        .perfume-result h3 {
-            margin-bottom: 10px;
-            font-size: 1.4em;
-            color: #cc5786;
-        }
-        .perfume-info p {
-            margin-bottom: 6px;
-        }
-        .perfume-info a {
-            color: #cc5786;
-        }
-        .rank-badge {
-            position: absolute;
-            top: -15px;
-            left: -15px;
-            background-color: #cc5786;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        select {
-            margin: 10px;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #f5c6d6;
-            font-size: 16px;
-            font-family: 'Georgia', serif;
-            background-color: #fff8fa;
-            color: #000000;
-        }
-        .input-box {
-            display: flex;
-            align-items: center;
-            background-color: #ffffff;
-        }
-        #filter-text-val {
-            margin-left: 10px;
-            padding: 10px;
-            width: 400px;
-            font-size: 16px;
-            font-family: 'Georgia', serif;
-            border: 1px solid #f5c6d6;
-            background-color: #fff8fa;
-        }
-        #no-results-message {
-            display: none;
-            text-align: center;
-            margin-top: 2em;
-            animation: fadeIn 0.4s ease-in;
-        }
-        .similarity-box {
-            display: inline-block;
-            background-color: #ffe0ec;
-            color: #cc3366;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid #f5c6d6;
-            font-size: 0.95em;
-            margin-bottom: 10px;
-        }   
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
 </head>
 <body>
 <div class="full-body-container">
     <div class="title-box">
         <img src="{{ url_for('static', filename='images/TitleCard.png') }}" />
-        <div class="input-box" onclick="sendFocus()">
-            <img src="{{ url_for('static', filename='images/mag.png') }}" />
-            <input id="filter-text-val" class="scent-search" placeholder="Try: 'floral perfume for women'">
+        <div class="input-box">
+            <button onclick="performSearch()" style="background: none; border: none; cursor: pointer;">
+                <img src="{{ url_for('static', filename='images/mag.png') }}" />
+            </button>
+            <input id="filter-text-val" placeholder="Try: 'floral and fruity perfume'">
         </div>
         <div>
             <input id="brand-filter" placeholder="Type a brand" 
                 style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
-            <input id="country-filter" placeholder="Enter origin country" 
+            <input id="country-filter" placeholder="Type origin country" 
                 style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
             <select id="gender-filter">
                 <option value="">All Genders</option>
@@ -120,24 +34,55 @@
 </div>
 
 <script>
+
     function answerBoxTemplate(p, index) {
-        return `<div class='perfume-result'>
-            <div class="rank-badge">${index + 1}</div>
+    return `
+    <div class="perfume-result">
+        <div class="perfume-left">
+            <img src="${p.image_url || '/static/images/placeholder.svg'}" alt="${p.display_name}" style="width: 120px; height: auto; object-fit: contain; margin-bottom: 10px;" />
+            <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
+        </div>
+        <div class="perfume-right">
+            <div class="gender-tab">${p.gender}</div>
             <h3>${p.display_name}</h3>
-            <div class="perfume-info">
-                <p><strong>Similarity Score:</strong> <span class="similarity-box">${p.similarity_score}%</span></p>
-                <p><strong>Top Notes:</strong> ${p.top_notes}</p>
-                <p><strong>Middle Notes:</strong> ${p.middle_notes}</p>
-                <p><strong>Base Notes:</strong> ${p.base_notes}</p>
-                <p><strong>Accords:</strong> ${p.accords}</p>
-                <p><strong>Gender:</strong> ${p.gender}</p>
-                <p><strong>Country:</strong> ${p.country}</p>
-                <p><strong>User Rating:</strong> ${p.rating_value}</p>
-                <p><strong>Year:</strong> ${p.year}</p>
-                <p><a href="${p.url}" target="_blank">More Info</a></p>
+            <div class="perfume-meta-row">
+                <span><strong class="perfume-meta-label">Country:</strong> ${p.country}</span>
+                <span><strong class="perfume-meta-label">Year:</strong> ${p.year}</span>
+                <span>
+                    <strong class="perfume-meta-label">User Rating:</strong> 
+                    ${p.rating_value}
+                    <span class="stars">${'★'.repeat(Math.round(p.rating_value))}</span>
+                </span>
             </div>
-        </div>`;
+            <span><strong class="perfume-meta-label">Accords:</strong> ${p.accords}</span>
+            <div class="perfume-notes-section">
+                <div class="note-group">
+                    <h4 class="note-label">Top Notes</h4>
+                    <div class="note-bubble-row">
+                    ${p.top_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                    </div>
+                </div>
+                <div class="note-group">
+                    <h4 class="note-label">Middle Notes</h4>
+                    <div class="note-bubble-row">
+                    ${p.middle_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                    </div>
+                </div>
+                <div class="note-group">
+                    <h4 class="note-label">Base Notes</h4>
+                    <div class="note-bubble-row">
+                    ${p.base_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="similarity-line-bottom">
+            <strong>Similarity Score:</strong>
+            <span class="similarity-box">${p.similarity_score}%</span>
+        </div>
+    </div>`;
     }
+
 
     function sendFocus() {
         document.getElementById('filter-text-val').focus();
@@ -179,6 +124,45 @@
         if (e.key === "Enter") performSearch();
     });
     document.getElementById("gender-filter").addEventListener("change", performSearch);
+
+
+    function getNoteColorClass(note) {
+        const noteMap = {
+        // Citrus
+        "citrus": "bubble-citrus", "citruses": "bubble-citrus", "bergamot": "bubble-citrus", "lemon": "bubble-citrus", "grapefruit": "bubble-citrus", "orange": "bubble-citrus", "yuzu": "bubble-citrus",
+        "almond milk": "bubble-citrus", "black diamond": "bubble-citrus", "coral amber": "bubble-citrus", "elemi resin": "bubble-citrus", "indian jasmine": "bubble-citrus", "pear leaf": "bubble-citrus", "water": "bubble-citrus",
+
+        // Floral
+        "floral": "bubble-floral", "rose": "bubble-floral", "jasmine": "bubble-floral", "lily-of-the-valley": "bubble-floral", "violet": "bubble-floral", "neroli": "bubble-floral",
+        "birch tar": "bubble-floral", "cognac": "bubble-floral", "evernyl": "bubble-floral", "green lilac": "bubble-floral", "green mandarin": "bubble-floral", "labdanum": "bubble-floral", "mineral": "bubble-floral", "seriguela": "bubble-floral", "silver pine": "bubble-floral",
+
+        // Fruity
+        "blackberry": "bubble-fruity", "apple blossom": "bubble-fruity", "apple": "bubble-fruity", "pear": "bubble-fruity", "pineapple": "bubble-fruity", "strawberry": "bubble-fruity", "raspberry": "bubble-fruity",
+        "ambrette (musk mallow)": "bubble-fruity", "australian sandalwood": "bubble-fruity", "chinese cedar": "bubble-fruity", "cotton flower": "bubble-fruity", "guava blossom": "bubble-fruity", "white leather": "bubble-fruity", "fruity": "bubble-fruity",
+
+        // Woody
+        "woodsy": "bubble-woody", "woody": "bubble-woody", "cedar": "bubble-woody", "sandalwood": "bubble-woody", "vetiver": "bubble-woody", "oud": "bubble-woody",
+        "algerian geranium": "bubble-woody", "ambroxan": "bubble-woody", "daylily": "bubble-woody", "exotic spices": "bubble-woody", "longan berries": "bubble-woody", "mandarin orange": "bubble-woody", "oat": "bubble-woody", "propolis": "bubble-woody", "tamarisk": "bubble-woody", "tyger lily": "bubble-woody",
+
+        // Sweet/Gourmand
+        "milkshake": "bubble-sweet", "vanila": "bubble-sweet", "vanilla": "bubble-sweet", "caramel": "bubble-sweet", "tonka bean": "bubble-sweet", "praline": "bubble-sweet",
+        "caviar": "bubble-sweet", "elemi": "bubble-sweet", "pea": "bubble-sweet", "red berries": "bubble-sweet", "soursop": "bubble-sweet",
+
+        // Spicy
+        "spicy": "bubble-spicy", "cardamom": "bubble-spicy", "pepper": "bubble-spicy", "ginger": "bubble-spicy", "saffron": "bubble-spicy",
+        "australian blue cypress": "bubble-spicy", "azalea": "bubble-spicy", "crinum lily": "bubble-spicy", "sweet": "bubble-spicy", "tuscan iris": "bubble-spicy",
+
+        // Aquatic
+        "watery": "bubble-aquatic", "sea salt": "bubble-aquatic", "watermelon": "bubble-aquatic", "lotus": "bubble-aquatic",
+        "red rose": "bubble-aquatic", "white cardamom": "bubble-aquatic",
+
+        // Musky
+        "musky": "bubble-musky", "musk": "bubble-musky", "amber": "bubble-musky", "ambergris": "bubble-musky",
+        "algae": "bubble-musky", "bulgarian light tobacco": "bubble-musky", "copoasu": "bubble-musky", "somalian opoponax": "bubble-musky", "turkey red rose": "bubble-musky"
+        };
+    note = note.toLowerCase();
+    return noteMap[note] || "bubble-default";
+    }
 </script>
 </body>
 </html>
