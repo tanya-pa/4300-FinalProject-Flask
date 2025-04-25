@@ -29,10 +29,19 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
-query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, country, url FROM fragrance"
+query_sql = "SELECT name, brand, top_notes, middle_notes, base_notes, all_notes, accords, gender, rating, year, country, url, reviews, description, image FROM fragrance"
 data = mysql_engine.query_selector(query_sql).fetchall()
 
-notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()}" for row in data]
+def extract_reviews(reviews_raw):
+    try:
+        reviews = json.loads(reviews_raw)
+        if isinstance(reviews, list):
+            return " ".join(reviews).lower()
+        return str(reviews).lower()
+    except Exception:
+        return ""
+
+notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()} {extract_reviews(row[12])} {{row[13].lower()}}" for row in data]
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(notes_corpus)
 
@@ -66,7 +75,7 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
 
     results = []
     for i, row in enumerate(data):
-        name, brand, top, middle, base, notes, accords, gender, rating, year, country, url = row
+        name, brand, top, middle, base, notes, accords, gender, rating, year, country, url, reviews_og, description, image = row
         if brand_filter and brand_filter.lower() not in brand.lower():
             continue
         if gender_filter and gender_filter.lower() != gender.lower():
@@ -79,10 +88,23 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
             sim = abs(1 - cosine(query_svd.ravel(), mysql_engine.svd_matrix[i].ravel()))
             sim = 0.0 if np.isnan(sim) else sim
 
+        # get best review
+        try:
+            reviews = json.loads(reviews_og)
+            if isinstance(reviews, list) and reviews:
+                review_vectors = mysql_engine.vectorizer.transform(reviews)
+                review_similarities = [1 - cosine(query_vector.toarray(), rv.toarray()) for rv in review_vectors]
+                best_review_index = int(np.argmax(review_similarities))
+                best_review = reviews[best_review_index]
+            else:
+                best_review = ""
+        except Exception:
+            best_review = ""
+
         normalized_rating = float(rating) / 5.0 if rating else 0
         score = 0.7 * sim + 0.3 * normalized_rating
         sim = sim*100
-        results.append((score, sim, row))
+        results.append((score, sim, row, best_review))
 
     results.sort(key=lambda x: x[0], reverse=True)
     keys = ["name", "brand", "top_notes", "middle_notes", "base_notes", "all_notes", "accords", "gender", "rating", "year", "country", "url"]
@@ -92,13 +114,14 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         return obj
     
     top_results = []
-    for score, sim, row in results[:5]:
+    for score, sim, row, best_review in results[:5]:
         perfume = dict(zip(keys, [convert_decimal(val) for val in row]))
         perfume['name'] = perfume['name'].title()
         perfume['brand'] = perfume['brand'].title()
         perfume['display_name'] = f"{perfume['name']} by {perfume['brand']}"
         perfume['rating_value'] = f"{perfume['rating']}"
         perfume['similarity_score'] = f"{sim:.2f}"
+        perfume['best_review'] = best_review
         top_results.append(perfume)
 
     if not top_results:
