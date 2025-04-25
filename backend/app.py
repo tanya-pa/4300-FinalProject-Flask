@@ -61,6 +61,14 @@ country_mappings = {
 svd = TruncatedSVD(n_components=100)
 svd_matrix = svd.fit_transform(tfidf_matrix)
 
+# Identify the top 8 most important latent dimensions by explained variance
+explained_variance = svd.explained_variance_ratio_
+top_k = 8
+top_dimensions_indices = np.argsort(explained_variance)[::-1][:top_k]
+
+# Store in a global variable
+latent_indices = top_dimensions_indices.tolist()
+
 mysql_engine.vectorizer = vectorizer
 mysql_engine.svd_matrix = svd_matrix
 mysql_engine.svd_model = svd
@@ -123,6 +131,31 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         perfume['similarity_score'] = f"{sim:.2f}"
         perfume['best_review'] = best_review
         perfume["image"] = image
+        
+        # Get SVD feature names
+        svd_vector = mysql_engine.svd_matrix[data.index(row)]
+        feature_names = vectorizer.get_feature_names_out()
+        components = svd.components_
+
+        # Extract the top term for each latent dimension
+        top_terms = {}
+        for dim in latent_indices:
+            top_idx = components[dim].argmax()
+            top_term = feature_names[top_idx]
+            top_terms[dim] = top_term
+
+        # Normalize latent profile values
+        latent_scores = [svd_vector[dim] for dim in latent_indices]
+        min_val = min(latent_scores)
+        max_val = max(latent_scores)
+        range_val = max_val - min_val if max_val != min_val else 1  # avoid divide-by-zero
+
+        normalized_profile = {
+            top_terms[dim]: round((svd_vector[dim] - min_val) / range_val, 4) for dim in latent_indices
+        }
+
+        perfume['latent_profile'] = normalized_profile
+        
         top_results.append(perfume)
 
     if not top_results:
