@@ -142,6 +142,8 @@ select {
     font-family: 'Georgia', serif;
     font-size: 0.95em;
     color: #333;
+    padding: 5px 10px;
+    border-radius: 5px;
 }
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -338,4 +340,53 @@ select {
 
 #dropdown-arrow.rotated {
     transform: rotate(180deg);
+}
+
+.review-box {
+    margin-top: 20px;
+    color: #cc5786; /* Pink for label */
+    font-weight: bold;
+}
+
+.review-box em {
+    color: #000; /* Black for content */
+    font-weight: normal;
+}
+
+.perfume-result {
+    display: flex;
+    margin-bottom: 40px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    position: relative;
+}
+
+.perfume-notes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+.autocomplete-items {
+    position: absolute;
+    background-color: #fff8fa;
+    border: 1px solid #f5c6d6;
+    border-radius: 5px;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    font-family: 'Georgia', serif;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-items div:hover {
+    background-color: #f5c6d6;
 }

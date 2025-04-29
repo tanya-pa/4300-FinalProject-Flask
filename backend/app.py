@@ -114,6 +114,20 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
         perfume['display_name'] = f"{perfume['name']} by {perfume['brand']}"
         perfume['rating_value'] = f"{perfume['rating']}"
         perfume['similarity_score'] = f"{sim:.2f}"
+
+        best_review = ""
+        try:
+            all_reviews = json.loads(row[12]) if row[12] else []
+            if isinstance(all_reviews, list) and perfume_query.strip():
+                all_reviews = [r for r in all_reviews if isinstance(r, str)]
+                review_vecs = vectorizer.transform(all_reviews)
+                query_vec = vectorizer.transform([perfume_query])
+                sims = review_vecs @ query_vec.T
+                best_idx = np.argmax(sims.toarray().ravel())
+                best_review = all_reviews[best_idx] if all_reviews else ""
+        except Exception:
+            best_review = ""
+        perfume['review'] = best_review
         
         svd_vector = mysql_engine.svd_matrix[data.index(row)]
         feature_names = vectorizer.get_feature_names_out()
@@ -147,7 +161,8 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
 
 @app.route("/")
 def home():
-    return render_template('base.html', title="Perfume Search")
+    sample = [{"brand": row[1], "country": row[10]} for row in data]
+    return render_template('base.html', title="Perfume Search", perfumes=sample)
 
 @app.route("/search")
 def perfume_search():

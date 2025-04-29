@@ -15,10 +15,15 @@
             <input id="filter-text-val" placeholder="Try: 'floral and fruity perfume'">
         </div>
         <div>
+            <div style="display: inline-block; position: relative;">
             <input id="brand-filter" placeholder="Type a brand" 
                 style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
+            </div>
+            <div style="display: inline-block; position: relative;">
             <input id="country-filter" placeholder="Type origin country" 
                 style="margin: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6; font-size: 16px; font-family: 'Georgia', serif; background-color: #fff8fa; color: #000;" />
+            </div>
+
             <select id="gender-filter">
                 <option value="">All Genders</option>
                 <option value="Women">Women</option>
@@ -41,8 +46,7 @@
             <p><strong>Accords</strong> are the unique scent combinations created by blending multiple notes to form a specific impression, like “powdery” or “woody.”</p>
         </div>
     </div>
-     <!-- Radar Chart Container -->
-     <div style="display: flex; justify-content: center; margin-top: 30px; flex-direction: column; align-items: center;">
+     <div style="display: none; justify-content: center; margin-top: 30px; flex-direction: column; align-items: center;" id="profile-container">
         <h2 style="color:#cc5786;">Fragrance Profile</h2>
         <select id="perfume-selector" style="margin-bottom: 10px; padding: 8px; border-radius: 5px; border: 1px solid #f5c6d6;">
             <option value="">Select fragrance...</option>
@@ -94,15 +98,16 @@
                     </div>
                     <div class="note-group">
                         <h4 class="note-label">Base Notes</h4>
-                        <div class="note-bubble-row", style="margin-bottom: 60px;">
+                        <div class="note-bubble-row", style="margin-bottom: 10px;">
                         ${p.base_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
                         </div>
                     </div>
-                    <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; text-align: center;">More Info</a>
-                </div>
-                <div class="similarity-line-bottom">
+                    ${p.review ? `<div class="review-box"><strong>Users are saying:</strong> <em>"${p.review}"</em></div>` : ''}
+                    <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; margin-top: 40px;">More Info</a>
+                    <div class="similarity-line-bottom">
                     <strong>Similarity Score:</strong>
                     <span class="similarity-box">${p.similarity_score}%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,8 +215,9 @@
 
                // Auto-select and show the first one
                if (data.length > 0) {
-                   dropdown.value = data[0].display_name;
-                   updateRadarChart(data[0].display_name);
+                    document.getElementById("profile-container").style.display = "flex";
+                    dropdown.value = data[0].display_name;
+                    updateRadarChart(data[0].display_name);
                }
 
             });
@@ -287,6 +293,41 @@
     content.style.display = isOpen ? "none" : "block";
     arrow.classList.toggle("rotated");
     }
+</script>
+
+<script>
+    const perfumesList = {{ perfumes|tojson|safe }};
+    const allBrands = [...new Set(perfumesList.map(p => p.brand))];
+    const allCountries = [...new Set(perfumesList.map(p => p.country))];
+    function autocomplete(inputId, suggestions) {
+        const input = document.getElementById(inputId);
+        input.addEventListener("input", function () {
+            closeSuggestions();
+            const val = this.value;
+            if (!val) return;
+            const list = suggestions.filter(s => s.toLowerCase().startsWith(val.toLowerCase()));
+            const container = document.createElement("div");
+            container.setAttribute("id", this.id + "-autocomplete-list");
+            container.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(container);
+            list.slice(0, 10).forEach(s => {
+                const item = document.createElement("div");
+                item.innerHTML = `<strong>${s.substr(0, val.length)}</strong>${s.substr(val.length)}`;
+                item.addEventListener("click", () => {
+                    input.value = s;
+                    closeSuggestions();
+                });
+                container.appendChild(item);
+            });
+        });
+        function closeSuggestions() {
+            const items = document.getElementsByClassName("autocomplete-items");
+            while (items[0]) items[0].parentNode.removeChild(items[0]);
+        }
+        document.addEventListener("click", () => closeSuggestions());
+    }
+    autocomplete("brand-filter", allBrands);
+    autocomplete("country-filter", allCountries);
 </script>
 </body>
 </html>
