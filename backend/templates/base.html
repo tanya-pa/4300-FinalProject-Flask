@@ -83,7 +83,6 @@
                     </span>
                 </div>
                 <span><strong class="perfume-meta-label">Accords:</strong> ${p.accords}</span>
-                <div class="perfume-notes-section">
                     <div class="note-group">
                         <h4 class="note-label">Top Notes</h4>
                         <div class="note-bubble-row">
@@ -102,13 +101,14 @@
                         ${p.base_notes.split(",").map(note => `<span class="note-bubble ${getNoteColorClass(note.trim())}">${note.trim()}</span>`).join("")}
                         </div>
                     </div>
+                    <div class="perfume-divide-section">
                     ${p.review ? `<div class="review-box"><strong>Users are saying:</strong> <em>"${p.review}"</em></div>` : ''}
                     <a href="${p.url}" target="_blank" style="color: #cc5786; text-decoration: underline; font-size: 14px; margin-top: 40px;">More Info</a>
                     <div class="similarity-line-bottom">
                     <strong>Similarity Score:</strong>
                     <span class="similarity-box">${p.similarity_score}%</span>
                     </div>
-                </div>
+                    </div>
             </div>
         </div>
     </div>`;

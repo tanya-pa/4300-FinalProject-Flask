@@ -344,12 +344,12 @@ select {
 
 .review-box {
     margin-top: 20px;
-    color: #cc5786; /* Pink for label */
+    color: #cc5786;
     font-weight: bold;
 }
 
 .review-box em {
-    color: #000; /* Black for content */
+    color: #000;
     font-weight: normal;
 }
 
@@ -361,7 +361,7 @@ select {
     position: relative;
 }
 
-.perfume-notes-section {
+.perfume-divide-section {
     display: flex;
     flex-direction: column;
     gap: 20px;
