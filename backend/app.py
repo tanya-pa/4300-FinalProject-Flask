@@ -41,11 +41,7 @@ def extract_reviews(reviews_raw):
         return str(reviews).lower()
     except Exception:
         return ""
-
-notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()} {extract_reviews(row[12])} {{row[13].lower()}}" for row in data]
-vectorizer = TfidfVectorizer()
-tfidf_matrix = vectorizer.fit_transform(notes_corpus)
-
+    
 country_mappings = {
     "u.k.": "uk",
     "united kingdom": "uk",
@@ -59,8 +55,19 @@ country_mappings = {
     "saudi arabia":"arabia saudi"
 }
 
+all_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()} {extract_reviews(row[12])}" for row in data]
+# with description - all_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()} {extract_reviews(row[12])} {row[13].lower()}" for row in data]
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(all_corpus)
 svd = TruncatedSVD(n_components=100)
 svd_matrix = svd.fit_transform(tfidf_matrix)
+
+# separate svd for display
+notes_corpus = [f"{row[5].lower()} {row[6].lower()} {row[0].lower()}" for row in data]
+vectorizer_notes = TfidfVectorizer()
+tfidf_matrix_notes = vectorizer_notes.fit_transform(notes_corpus)
+svd_notes = TruncatedSVD(n_components=100)
+svd_matrix_notes = svd_notes.fit_transform(tfidf_matrix_notes)
 
 explained_variance = svd.explained_variance_ratio_
 top_k = 8
@@ -70,6 +77,9 @@ latent_indices = top_dimensions_indices.tolist()
 mysql_engine.vectorizer = vectorizer
 mysql_engine.svd_matrix = svd_matrix
 mysql_engine.svd_model = svd
+mysql_engine.vectorizer_notes = vectorizer_notes
+mysql_engine.svd_matrix_notes = svd_matrix_notes
+mysql_engine.svd_model_notes = svd_notes
 
 def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=""):
     """Search for perfumes based on name, brand, country, gender, and notes."""
@@ -129,9 +139,9 @@ def sql_search(perfume_query, brand_filter="", gender_filter="", country_filter=
             best_review = ""
         perfume['review'] = best_review
         
-        svd_vector = mysql_engine.svd_matrix[data.index(row)]
-        feature_names = vectorizer.get_feature_names_out()
-        components = svd.components_
+        svd_vector = svd_matrix_notes[data.index(row)]
+        feature_names = vectorizer_notes.get_feature_names_out()
+        components = svd_notes.components_
 
         top_terms = {}
         for dim in latent_indices:
